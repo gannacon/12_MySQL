@@ -39,18 +39,19 @@ const init = () => {
       .render()
   );
 
-  const query = `
-  SELECT employee.id, employee.first_name, employee.last_name, employee.manager_id, role.title, role.salary, department.name
-  FROM employee
+  const query = `SELECT e.id, e.first_name, e.last_name, e.manager_id, role.title, role.salary, department.name, concat(manager.first_name, ' ', manager.last_name) AS manager_name
+  FROM employee e
   JOIN role
-  ON employee.role_id=role.id
+  ON e.role_id=role.id
   JOIN department
-  ON role.department_id=department.id`;
-  connection.query(query, (err, res) => {
+  ON role.department_id=department.id
+  LEFT OUTER JOIN employee manager
+  ON e.manager_id = manager.id`;
+  const q = connection.query(query, (err, res) => {
     if (err) throw err;
     console.table(res);
   });
-
+  console.log(q.sql);
   //runSearch();
 };
 

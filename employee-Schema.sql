@@ -43,16 +43,20 @@ VALUES ("Sales Person", "80000", "1"), ("Account Manager", "100000", "2"), ("Eng
 INSERT INTO employee (first_name, last_name, role_id, manager_id)
 VALUES ("Jane", "Doe", "1", "1");
 
-SELECT employee.first_name, employee.last_name, employee.role_id, employee.manager_id, role.title, role.salary, role.department_id, department.name
-  FROM employee
-  JOIN department
-  ON department.id=role.department_id
-  JOIN role
-  ON employee.role_id=role.id;
+
 
 SELECT employee_DB.employee.first_name, employee_DB.role.title
 FROM employee_DB.employee
 FULL OUTER JOIN employee_DB.employee ON role.id=employee.CustomerID
 
+
+SELECT e.id, e.first_name, e.last_name, e.manager_id, role.title, role.salary, department.name, concat(manager.first_name, ' ', manager.last_name) AS manager_name
+  FROM employee e
+  JOIN role
+  ON e.role_id=role.id
+  JOIN department
+  ON role.department_id=department.id
+  LEFT OUTER JOIN employee manager
+  ON e.manager_id = manager.id
 
 
