@@ -28,10 +28,6 @@ CREATE TABLE employee (
   FOREIGN KEY (manager_id) REFERENCES employee(id)
 );
 
-SELECT * FROM department;
-SELECT * FROM role;
-select * from employee;
-
 
 INSERT INTO department (name)
 VALUES ("Sales"), ("Finance"), ("Engineering");
@@ -40,10 +36,20 @@ VALUES ("Sales"), ("Finance"), ("Engineering");
 INSERT INTO role (title, salary, department_id)
 VALUES ("Sales Person", "80000", "1"), ("Account Manager", "100000", "2"), ("Engineer", "150000", "3");
 
+INSERT INTO employee (first_name, last_name, role_id)
+VALUES ("Connor", "Smith", "1");
 INSERT INTO employee (first_name, last_name, role_id, manager_id)
-VALUES ("Jane", "Doe", "1", "1");
+VALUES ("Greg", "Gannaway", "2", "1");
+INSERT INTO employee (first_name, last_name, role_id, manager_id)
+VALUES ("Jane", "Doe", "1", "2");
+INSERT INTO employee (first_name, last_name, role_id, manager_id)
+VALUES ("Ashley", "Person", "1", "1");
+INSERT INTO employee (first_name, last_name, role_id)
+VALUES ("Connor", "Gannaway", "3");
 
-
+SELECT * FROM department;
+SELECT * FROM role;
+select * from employee;
 
 SELECT employee_DB.employee.first_name, employee_DB.role.title
 FROM employee_DB.employee

@@ -39,7 +39,59 @@ const init = () => {
       .render()
   );
 
-  const query = `SELECT e.id, e.first_name, e.last_name, e.manager_id, role.title, role.salary, department.name, concat(manager.first_name, ' ', manager.last_name) AS manager_name
+  runSearch();
+};
+
+const runSearch = () => {
+  inquirer
+    .prompt({
+      name: "action",
+      type: "rawlist",
+      message: "What would you like to do?",
+      choices: [
+        "View all employees",
+        "View departments:",
+        "View roles",
+        "Add a department",
+        "Add a role",
+        "Add an employee",
+      ],
+    })
+    .then((answer) => {
+      switch (answer.action) {
+        case "View all employees":
+          viewAll();
+          break;
+
+        case "View departments:":
+          viewDepartments();
+          break;
+
+        case "View roles":
+          viewRoles();
+          break;
+
+        case "Add a department":
+          addDepartment();
+          break;
+
+        case "Add a role":
+          addRole();
+          break;
+
+        case "Add an employee":
+          // addEmployee();
+          break;
+
+        default:
+          console.log(`Invalid action: ${answer.action}`);
+          break;
+      }
+    });
+};
+
+const viewAll = () => {
+  const query = `SELECT e.id, e.first_name, e.last_name, role.title, role.salary, department.name, concat(manager.first_name, ' ', manager.last_name) AS manager_name
   FROM employee e
   JOIN role
   ON e.role_id=role.id
@@ -47,56 +99,99 @@ const init = () => {
   ON role.department_id=department.id
   LEFT OUTER JOIN employee manager
   ON e.manager_id = manager.id`;
-  const q = connection.query(query, (err, res) => {
+  connection.query(query, (err, res) => {
     if (err) throw err;
     console.table(res);
+    runSearch();
   });
-  console.log(q.sql);
-  //runSearch();
 };
 
-// const runSearch = () => {
-//   inquirer
-//     .prompt({
-//       name: "action",
-//       type: "rawlist",
-//       message: "What would you like to do?",
-//       choices: [
-//         "Find songs by artist",
-//         "Find all artists who appear more than once",
-//         "Find data within a specific range",
-//         "Search for a specific song",
-//         "Find artists with a top song and top album in the same year",
-//       ],
-//     })
-//     .then((answer) => {
-//       switch (answer.action) {
-//         case "Find songs by artist":
-//           //artistSearch();
-//           break;
+const viewDepartments = () => {
+  const query = `SELECT * FROM department`;
+  connection.query(query, (err, res) => {
+    if (err) throw err;
+    console.table(res);
+    runSearch();
+  });
+};
 
-//         case "Find all artists who appear more than once":
-//           //multiSearch();
-//           break;
+const viewRoles = () => {
+  const query = `SELECT role.title, role.salary, department.name department
+  FROM role
+  JOIN department
+  ON role.department_id=department.id`;
+  connection.query(query, (err, res) => {
+    if (err) throw err;
+    console.table(res);
+    runSearch();
+  });
+};
 
-//         case "Find data within a specific range":
-//           //rangeSearch();
-//           break;
+const addDepartment = () => {
+  const departmentInput = [
+    {
+      type: "input",
+      message: "What Department would you like to add?",
+      name: "dept",
+    },
+  ];
+  inquirer.prompt(departmentInput).then((answer) => {
+    const query = `INSERT INTO department (name)
+    VALUES ("${answer.dept}")`;
+    connection.query(query, (err, res) => {
+      if (err) throw err;
+      runSearch();
+    });
+  });
+};
 
-//         case "Search for a specific song":
-//           //songSearch();
-//           break;
-
-//         case "Find artists with a top song and top album in the same year":
-//           //songAndAlbumSearch();
-//           break;
-
-//         default:
-//           console.log(`Invalid action: ${answer.action}`);
-//           break;
-//       }
-//     });
-// };
+const addRole = () => {
+  const firstQuery = `SELECT role.title, role.salary, department.name department, department.id
+  FROM role
+  RIGHT JOIN department
+  ON role.department_id=department.id`;
+  connection.query(firstQuery, (err, res) => {
+    if (err) throw err;
+    const departmentInput = [
+      {
+        type: "input",
+        message: "What role title would you like to add?",
+        name: "title",
+      },
+      {
+        type: "input",
+        message: "What will the salary be?",
+        name: "salary",
+      },
+      {
+        name: "dept",
+        type: "rawlist",
+        choices() {
+          const choiceArray = [];
+          res.forEach(({ department }) => {
+            choiceArray.push(department);
+          });
+          return choiceArray;
+        },
+        message: "What department would you like to add this role too",
+      },
+    ];
+    inquirer.prompt(departmentInput).then((answer) => {
+      let chosenDept;
+      res.forEach((depts) => {
+        if (depts.department === answer.dept) {
+          chosenDept = depts;
+        }
+      });
+      const query = `INSERT INTO role (title, salary, department_id)
+      VALUES ("${answer.title}", "${answer.salary}", "${chosenDept.id}")`;
+      connection.query(query, (err, res) => {
+        if (err) throw err;
+        runSearch();
+      });
+    });
+  });
+};
 
 // const artistSearch = () => {
 //   inquirer
