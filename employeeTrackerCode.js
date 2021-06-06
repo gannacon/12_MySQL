@@ -80,7 +80,7 @@ const runSearch = () => {
           break;
 
         case "Add an employee":
-          // addEmployee();
+          addEmployee();
           break;
 
         default:
@@ -91,7 +91,7 @@ const runSearch = () => {
 };
 
 const viewAll = () => {
-  const query = `SELECT e.id, e.first_name, e.last_name, role.title, role.salary, department.name, concat(manager.first_name, ' ', manager.last_name) AS manager_name
+  const query = `SELECT e.id, e.first_name, e.last_name, role.title, role.salary, department.name department, concat(manager.first_name, ' ', manager.last_name) AS manager_name
   FROM employee e
   JOIN role
   ON e.role_id=role.id
@@ -146,13 +146,11 @@ const addDepartment = () => {
 };
 
 const addRole = () => {
-  const firstQuery = `SELECT role.title, role.salary, department.name department, department.id
-  FROM role
-  RIGHT JOIN department
-  ON role.department_id=department.id`;
+  const firstQuery = `SELECT department.name department, department.id
+  FROM department`;
   connection.query(firstQuery, (err, res) => {
     if (err) throw err;
-    const departmentInput = [
+    const roleInput = [
       {
         type: "input",
         message: "What role title would you like to add?",
@@ -176,7 +174,7 @@ const addRole = () => {
         message: "What department would you like to add this role too",
       },
     ];
-    inquirer.prompt(departmentInput).then((answer) => {
+    inquirer.prompt(roleInput).then((answer) => {
       let chosenDept;
       res.forEach((depts) => {
         if (depts.department === answer.dept) {
@@ -188,6 +186,81 @@ const addRole = () => {
       connection.query(query, (err, res) => {
         if (err) throw err;
         runSearch();
+      });
+    });
+  });
+};
+
+const addEmployee = () => {
+  const firstQuery = `SELECT title, id FROM role`;
+  connection.query(firstQuery, (err, res) => {
+    if (err) throw err;
+    let roleList = res;
+    const secondQuery = `SELECT e.id, concat(e.first_name, ' ', e.last_name) AS employee_name, e.manager_id, role.title role, role.salary, department.name, concat(manager.first_name, ' ', manager.last_name) AS manager_name
+    FROM employee e
+    JOIN role
+    ON e.role_id=role.id
+    JOIN department
+    ON role.department_id=department.id
+    LEFT OUTER JOIN employee manager
+    ON e.manager_id = manager.id`;
+    connection.query(secondQuery, (err, res) => {
+      if (err) throw err;
+      const employeeInput = [
+        {
+          type: "input",
+          message: "What is the new employee's first name?",
+          name: "first",
+        },
+        {
+          type: "input",
+          message: "What is the new employee's last name?",
+          name: "last",
+        },
+        {
+          name: "role",
+          type: "rawlist",
+          choices() {
+            var choiceArray = [];
+            for (var i = 0; i < roleList.length; i++) {
+              choiceArray.push(roleList[i].title);
+            }
+            return choiceArray;
+          },
+          message: "What role with this new employee have?",
+        },
+
+        {
+          name: "manager",
+          type: "rawlist",
+          choices() {
+            const choiceArray = ["None"];
+            res.forEach(({ employee_name }) => {
+              choiceArray.push(employee_name);
+            });
+            return choiceArray;
+          },
+          message: "Who will manage this employee?",
+        },
+      ];
+      inquirer.prompt(employeeInput).then((answer) => {
+        let chosenRole;
+        res.forEach((roles) => {
+          if (roles.role === answer.role) {
+            chosenRole = roles;
+          }
+        });
+        let chosenManager;
+        res.forEach((managers) => {
+          if (managers.employee_name === answer.manager) {
+            chosenManager = managers;
+          }
+        });
+        const query = `INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES ("${answer.first}", "${answer.last}", "${chosenRole.id}", "${chosenManager.id}")`;
+        connection.query(query, (err, res) => {
+          if (err) throw err;
+          runSearch();
+        });
       });
     });
   });
