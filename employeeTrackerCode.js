@@ -50,7 +50,7 @@ const runSearch = () => {
       message: "What would you like to do?",
       choices: [
         "View all employees",
-        "View departments:",
+        "View departments",
         "View roles",
         "Add a department",
         "Add a role",
