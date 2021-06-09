@@ -4,18 +4,18 @@ CREATE database employee_DB;
 USE employee_DB;
 
 CREATE TABLE department (
-  department_id INT NOT NULL AUTO_INCREMENT,
+  id INT NOT NULL AUTO_INCREMENT,
   name VARCHAR(30) NULL,
-  PRIMARY KEY (department_id)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE role (
-  role_id INT NOT NULL AUTO_INCREMENT,
+  id INT NOT NULL AUTO_INCREMENT,
   title VARCHAR(30) NULL,
   salary DECIMAL(10,2) NULL,
   department_id INT NULL,
-  PRIMARY KEY (role_id),
-  FOREIGN KEY (department_id) REFERENCES department(department_id)
+  PRIMARY KEY (id),
+  FOREIGN KEY (department_id) REFERENCES department(id)
 );
 CREATE TABLE employee (
   id INT NOT NULL AUTO_INCREMENT,
@@ -24,7 +24,7 @@ CREATE TABLE employee (
   role_id INT NULL,
   manager_id INT NULL,
   PRIMARY KEY (id),
-  FOREIGN KEY (role_id) REFERENCES role(role_id),
+  FOREIGN KEY (role_id) REFERENCES role(id),
   FOREIGN KEY (manager_id) REFERENCES employee(id)
 );
 

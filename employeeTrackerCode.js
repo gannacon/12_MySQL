@@ -197,19 +197,13 @@ const addRole = () => {
 };
 
 const addEmployee = () => {
-  const firstQuery = `SELECT title, id FROM role`;
-  connection.query(firstQuery, (err, res) => {
+  const roleQuery = `SELECT title, id FROM role`;
+  connection.query(roleQuery, (err, roles) => {
+    console.log(roles);
     if (err) throw err;
-    let roleList = res;
-    const secondQuery = `SELECT e.id, concat(e.first_name, ' ', e.last_name) AS employee_name, e.manager_id, role.title role, role.salary, department.name, concat(manager.first_name, ' ', manager.last_name) AS manager_name
-    FROM employee e
-    JOIN role
-    ON e.role_id=role.id
-    JOIN department
-    ON role.department_id=department.id
-    LEFT OUTER JOIN employee manager
-    ON e.manager_id = manager.id`;
-    connection.query(secondQuery, (err, res) => {
+    const employeeQuery = `SELECT e.id, concat(e.first_name, ' ', e.last_name) AS employee_name
+    FROM employee e`;
+    connection.query(employeeQuery, (err, employees) => {
       if (err) throw err;
       const employeeInput = [
         {
@@ -223,53 +217,38 @@ const addEmployee = () => {
           name: "last",
         },
         {
-          name: "role",
+          name: "roleQ",
           type: "rawlist",
           choices() {
-            var choiceArray = [];
-            for (var i = 0; i < roleList.length; i++) {
-              choiceArray.push(roleList[i].title);
-            }
-            return choiceArray;
+            // creating a new array using the .map
+            return roles.map((role) => role.title);
           },
           message: "What role with this new employee have?",
         },
 
         {
-          name: "manager",
+          name: "managerQ",
           type: "rawlist",
           choices() {
-            const choiceArray = ["None"];
-            res.forEach(({ employee_name }) => {
-              choiceArray.push(employee_name);
-            });
-            return choiceArray;
+            return employees.map((employee) => employee.employee_name);
           },
           message: "Who will manage this employee?",
         },
       ];
       inquirer.prompt(employeeInput).then((answer) => {
-        let chosenRole;
-        res.forEach((roles) => {
-          if (roles.role === answer.role) {
-            chosenRole = roles;
-          }
-        });
-        let chosenManager;
-        res.forEach((managers) => {
-          if (managers.employee_name === answer.manager) {
-            chosenManager = managers;
-          } else {
-            return false;
-          }
-        });
+        let chosenRole = roles.find((role) => role.title === answer.roleQ);
+        console.log(chosenRole);
+        let chosenManager = employees.find(
+          (employee) => employee.employee_name === answer.managerQ
+        );
+        console.log(chosenManager);
         connection.query(
           "INSERT INTO employee SET ?",
           {
             first_name: answer.first,
             last_name: answer.last,
             role_id: chosenRole.id,
-            manager_id: chosenManager.id || `NULL`,
+            manager_id: chosenManager.id,
           },
           (err, res) => {
             if (err) throw err;
