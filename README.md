@@ -4,18 +4,21 @@
 
 ## Description
 
-## Table of Contents (Optional)
+## Table of Contents
 
 - [Installation](#installation)
-- [Usage](#usage)
-- [Contribute](#contribute)
+- [User Story](#User-Story)
+- [Mock-Up](#Mock-up)
+- [Acceptance Criteria](#acceptance-criteria)
+- [Guidelines](#guidelines)
 - [License](#license)
+- [Contribute](#contribute)
 
 ## Installation
 
 Use the following command to install the dependencies.
 
-    npm i
+    npm install
 
 ## User Story
 
@@ -27,9 +30,17 @@ So that I can organize and plan my business
 
 ## Mock-Up
 
-The following image shows a mock-up of the generated HTML’s appearance and functionality:
+The following image shows a the "Home Page" in the console after running "npm start":
 
 ![Homepage for application](./images/homepage.png)
+
+Using this schema:
+
+![Database Schema](./images/schema.png)
+
+Running the program:
+
+![Program Runninga](./images/MYSQL.gif)
 
 ## Acceptance Criteria
 
@@ -42,18 +53,15 @@ Build a command-line application that at a minimum allows the user to:
 
   * Update employee roles
 
-Bonus points if you're able to:
-
-  * Update employee managers
-
-  * View employees by manager
-
-  * Delete departments, roles, and employees
-
-  * View the total utilized budget of a department -- ie the combined salaries of all employees in that department
-
-We can frame this challenge as follows:
 ```
+
+## Guidelines
+
+- Use the [MySQL](https://www.npmjs.com/package/mysql) NPM package to connect to MySQL database and perform queries.
+
+- Use [InquirerJs](https://www.npmjs.com/package/inquirer/v/0.2.3) NPM package to interact with the user via the command-line.
+
+- Use [console.table](https://www.npmjs.com/package/console.table) to print MySQL rows to the console. A cleaner version of the built in `console.table();`
 
 ---
 
