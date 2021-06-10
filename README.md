@@ -30,7 +30,6 @@ So that I can organize and plan my business
 The following image shows a mock-up of the generated HTML’s appearance and functionality:
 
 ![Homepage for application](./images/homepage.png)
-![Homepage for application](./images/mainPage.png)
 
 ## Acceptance Criteria
 
